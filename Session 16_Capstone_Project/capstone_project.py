@@ -190,3 +190,162 @@ class StoreManager:
         self.inventory[product.product_id] = product
         self.categories.add(product.category)
         print("Product added successfully")
+
+    def display_inventory(self):
+        print("\n")
+        print("="*60)
+        print("         STORE INVENTORY")
+        print("="*60)
+
+        if len(self.inventory) == 0:
+            print("Inventory is empty")
+            return
+
+        for product in self.inventory.values():
+            product.get_product_info()
+            print("-"*60)
+
+    def update_stock(self,product_id):
+        if product_id not in self.inventory:
+            print("Product not found")
+            return
+
+        product = self.inventory[product_id]
+        print("\n 1. Add stock")
+        print("2. Replace stock")
+
+        choice = int(input("Enter choice = "))
+
+        quantity = int(input("Enter quantity = "))
+
+        if quantity < 0:
+            print("Quantity cannot be negative.")
+            return
+
+        if choice == "1":
+            product.add_stock(quantity)
+            print("Stock added successfully")
+        elif choice == "2":
+            product.stock = quantity
+            print("Stock replaced successfully")
+        else: 
+            print("Invalid choice")
+
+    def remove_product(self, product_id):
+        if product_id not in self.inventory:
+            print("Product not found")
+            return
+
+        self.inventory.pop(product_id)
+        print("Product removed successfully")
+
+    
+    def register_customer(self):
+        customer_id = input("Enter customer id : ")
+        if customer_id in self.customers:
+            print("Customer already exists")
+            return
+        
+        name = input("Enter Customer Name = ")
+        phone= input("Enter Phone Number = ")
+
+        customer = Customer(
+            customer_id, 
+            name,
+            phone
+        )
+
+        self.customers[customer_id] = customer
+
+    def display_customer(self):
+        print("\n")
+        print("="*60)
+        print("         CUSTOMER")
+        print("="*60)
+
+        if len(self.customers) == 0:
+            print("No customers found.")
+            return
+
+        for customer in self.customers.values():
+            customer.display_cutomer()
+            print("-"*60)
+
+    def create_order(self):
+        customer_id = input("Enter Customer ID : ")
+        if customer_id not in self.customers:
+            print("Customer not found")
+            return
+        
+        customer = self.customers[customer_id]
+        self.order_counter+=1
+        order_id = "O"+str(self.order_counter)
+        order = Order(
+            order_id, 
+            customer
+        )
+        while True:
+            product_id = input("\nEnter Product ID(0 to finish) = ")
+            if product_id = "0":
+                break
+            if product_id not in self.inventory:
+                print("Product not found.")
+                continue
+            product = self.inventory[product_id]
+            quantity = int(input("Enter Quantity"))
+            if quantity<0:
+                print("Quantity cannot be less than zero")
+                continue
+            if quantity > product.stock:
+                print(
+                    f"Only {product.stock}"
+                    f"units are available"
+                )
+                continue
+
+            order.add_item(
+                product,
+                quantity
+            )
+            product.remove_stock(quantity)
+            print("Product added to order. ")
+
+            if len(order.items) == 0:
+                print("Order Cancelled\nNo products selected")
+                return 
+
+            order.calculate_total()
+            order.status="Confirmed"
+            self.orders.append(order)
+            customer.add_order(order)
+            print("\nOrder created successfully")
+            order.display_invoice()
+
+    def view_order_history(self):
+        customer_id = input("Enter Customer Id = ")
+        if customer_id not in self.customers: 
+            print("Customer not found")
+            return 
+
+        customer = self.customers[customer_id]
+        customer.display_orders()
+
+    def search_product(self):
+        search = input(
+            "Enter Product ID, Name or Category"
+        ).lower()
+
+        found = False
+
+        for product in self.inventory.values():
+            if(
+                search == product.product_id.lower()
+                or search == product.name.lower()
+                or search == product.category.lower()
+            ):
+                product.get_product_info():
+                print("-"*60)
+                found = True
+
+        if not found:
+            print("Product not found")
