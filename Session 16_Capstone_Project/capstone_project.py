@@ -142,7 +142,7 @@ class Order:
 
             print(
                 f"{item['name']:<20}"
-                f"{item['quanity']:<8}"
+                f"{item['quantity']:<8}"
                 f"{item['price']:<12.2f}"
                 f"{total:<12.2f}"
             )
@@ -268,7 +268,7 @@ class StoreManager:
             return
 
         for customer in self.customers.values():
-            customer.display_cutomer()
+            customer.display_customer()
             print("-"*60)
 
     def create_order(self):
@@ -286,7 +286,7 @@ class StoreManager:
         )
         while True:
             product_id = input("\nEnter Product ID(0 to finish) = ")
-            if product_id = "0":
+            if product_id == "0":
                 break
             if product_id not in self.inventory:
                 print("Product not found.")
@@ -328,7 +328,7 @@ class StoreManager:
             return 
 
         customer = self.customers[customer_id]
-        customer.display_orders()
+        customer.display_order()
 
     def search_product(self):
         search = input(
@@ -343,9 +343,235 @@ class StoreManager:
                 or search == product.name.lower()
                 or search == product.category.lower()
             ):
-                product.get_product_info():
+                product.get_product_info()
                 print("-"*60)
                 found = True
 
         if not found:
             print("Product not found")
+
+    def store_summary(self):
+        total_units = 0
+        total_sales = 0
+        
+        highest_price = 0
+        highest_product = ""
+
+        lowest_price = 0
+        lowest_product = ""
+
+        first_product = True
+
+        for product in self.inventory.values():
+            total_units += product.stock
+
+            if first_product: 
+                highest_price = product.price
+                highest_product = product.name
+
+                lowest_price = product.price
+                lowest_product = product.name
+
+                first_product = False
+
+            else : 
+                if product.price > highest_price:
+                    highest_price = product.price
+                    highest_product = product.name
+
+                if product.price < lowest_price:
+                    lowest_price = product.price
+                    lowest_product = product.name
+
+        
+        for order in self.orders:
+            if order.status == "Confirmed":
+                total_sales += order.final_amount
+
+        print("\n")
+        print("="*60)
+        print("         STORE SUMMARY")
+        print("="*60)
+
+        print(
+            f"Total Products    :"
+            f"{len(self.inventory)}"
+        )
+        print(
+            f"Total Units   :"
+            f"{total_units}"
+        )
+        print(
+            f"Total Customers   :"
+            f"{len(self.customers)}"
+        )
+        print(
+            f"Total Orders  :"
+            f"{len(self.orders)}"
+        )
+        print(
+            f"Total Sales   :"
+            f"₹{total_sales:.2f}"
+        )
+        print(
+            f"Highest Priced Item   :"
+            f"{highest_product}"
+        )
+        print(
+            f"Lowest Priced Item   :"
+            f"{lowest_product}"
+        )
+        print(
+            f"Categories    :"
+            f"{self.categories}"
+        )
+
+        print("="*60)
+
+
+
+
+store = StoreManager()
+
+rice = RegularProduct(
+    "P101",
+    "Rice",
+    60,
+    20,
+    "Food"
+)
+
+milk = PerishableProduct(
+    "P102",
+    "Milk",
+    40,
+    20,
+    "Food",
+    "27-08-2026"
+)
+
+laptop = RegularProduct(
+    "P103",
+    "Laptop",
+    120000,
+    10,
+    "Electronics"
+)
+
+notebook = RegularProduct(
+    "P104",
+    "Notebook",
+    70,
+    100,
+    "Stationery"
+)
+
+oil = PerishableProduct(
+    "P105",
+    "Cooking Oil",
+    160,
+    100,
+    "Food",
+    "25-01-2027"
+)
+
+store.add_product(rice)
+store.add_product(milk)
+store.add_product(laptop)
+store.add_product(notebook)
+store.add_product(oil)
+
+
+while True:
+    print("\n")
+    print("=" * 50)
+    print("          STORE MANAGEMENT SYSTEM")
+    print("=" * 50)
+
+    print("1. Add Product")
+    print("2. Display Inventory")
+    print("3. Update Stock")
+    print("4. Remove Product")
+    print("5. Register Customer")
+    print("6. Display Customers")
+    print("7. Create Purchase Order")
+    print("8. View Order History")
+    print("9. Search Product")
+    print("10. Store Summary")
+    print("0. Exit")
+
+    print("=" * 50)
+
+    choice = input("Enter your choice : ")
+
+    if choice == "1":
+        product_id = input(
+            "Product ID: "
+        )
+        name = input(
+            "Product Name: "
+        )
+        price = float(
+            input("Price: ")
+        )
+        stock = int(
+            input("Stock: ")
+        )
+        category = input(
+            "Category: "
+        )
+
+        print("\n1. Regular Product")
+        print("2. Perishable Product")
+
+        product_type = input("Product Type: ")
+
+        if product_type == "1":
+            product = RegularProduct(
+                product_id, 
+                name,
+                price,
+                stock,
+                category
+            )
+        elif product_type == "2":
+            expiry = input("Expiry Date: ")
+            product = PerishableProduct(
+                product_id,
+                name,
+                price,
+                stock,
+                category,
+                expiry
+            )
+        else : 
+            print("Invalid product type.")
+            continue
+
+        store.add_product(product)
+
+    elif choice == "2":
+        store.display_inventory()
+    elif choice == "3":
+        product_id = input("Enter Product Id: ")
+        store.update_stock(product_id)
+    elif choice == "4":
+        product_id = input("Enter Product")
+        store.remove_product(product_id)
+    elif choice == "5":
+        store.register_customer()
+    elif choice == "6":
+        store.display_customer()
+    elif choice == "7":
+        store.create_order()
+    elif choice == "8":
+        store.view_order_history()
+    elif choice == "9":
+        store.search_product()
+    elif choice == "10":
+        store.store_summary()
+    elif choice == "0":
+        print("\nThan you for using Store Management System")
+        break
+    else : 
+        print("Invalid choice. Please try again.")
