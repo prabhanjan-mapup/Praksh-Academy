@@ -320,10 +320,94 @@ HAVING SUM(quantity*price) > 5000
 # """)
 
 # print(cursor.fetchone())
-for row in cursor.fetchall():
-    print(row)
+# for row in cursor.fetchall():
+#     print(row)
 connection.commit()
 connection.close()
 
 
 #Left with Joins. - upcoming doubtsession
+'''
+joins - it is a operation to join multiple tables and extract meaningful insights.
+
+1. inner join (it will get all the values from both the tbles which satisfies the condition)
+
+SELECT * FROM table A a
+INNER JOIN 
+table B b
+ON a.condition = b.condition - the rows who satisfies this condition will be only in the output
+'''
+
+cursor.execute("""
+Select 
+    c.name,
+    o.product,
+    o.price
+FROM customers c
+INNER JOIN orders o
+ON c.customer_id = o.customer_id
+WHERE c.city = 'Pune'
+""")
+
+for row in cursor.fetchall():
+    print(row)
+
+'''
+Left Join - All the rows from left and only matching rows from right
+- for the rows in left who don't have any match in right the values will be NULL.
+'''
+
+cursor.execute("""
+Select 
+    c.name,
+    o.product,
+    o.price
+FROM customers c
+LEFT JOIN orders o
+ON c.customer_id = o.customer_id
+WHERE c.city = 'Pune'
+""")
+
+for row in cursor.fetchall():
+    print(row)
+
+
+'''
+View - A saved SQL Query of a table
+'''
+
+cursor.execute(""""
+CREATE VIEW IF NOT EXISTS customer_orders_details AS 
+Select 
+    c.name,
+    c.city,
+    o.product,
+    o.price,
+    o.quantity
+FROM customers c
+LEFT JOIN orders o
+ON c.customer_id = o.customer_id
+""")
+
+cusor.execute("""
+Select * from customer_orders_details
+""")
+
+'''
+Delete - It will delete some records form the table based on the condition provided
+Drop - It will delete the entire table from the database
+Truncate - It will delete all the records from the table but the table will still be present in the database
+Syntax
+Delete: Delete from customers; #entire table
+Delete from customers where cust_id = 101; #it will delegte the records only of customer 101
+
+DROP TABLE table_name; # it will drop the table from the database with schema. Re insertion will give failure
+TRUNCATE TABLE ; # It will delete the rows from the table but will retain the schema in database
+'''
+
+connection.commit()
+connection.close()
+
+
+# concepts CTE's - Commaon Table Expressions
+# Window Functions - Row level, offset and aggregate
